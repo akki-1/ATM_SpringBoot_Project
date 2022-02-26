@@ -22,13 +22,10 @@ public class LoginControll {
 
 	@RequestMapping("signin")
 	public ModelAndView signin(ModelAndView mv,HttpSession hs) {
-
 		mv.setViewName("login");
 		hs.setAttribute("attempt", 0);
 		return mv;
-
 	}
-
 	@PostMapping("login")
 	public ModelAndView login(@RequestParam("username") String uname, @RequestParam("password") String pass,
 			ModelAndView mv,HttpSession hs) {
@@ -39,6 +36,8 @@ public class LoginControll {
 		List<Object[]> l = q.list();
 		for (Object obj1[] : l) {
 			for (Object obj : obj1) {
+				hs.setAttribute("uname", uname);
+
 				b=true;
 			}
 		}
@@ -85,9 +84,6 @@ public class LoginControll {
 		else  {
 			System.out.println("Invalid UserName and Password");
 		}
-
-
-
 		return mv;
 
 	}
@@ -95,32 +91,77 @@ public class LoginControll {
 	public ModelAndView signup(ModelAndView mv) {
 		mv.setViewName("signup");
 		return mv;
-		
+
 	}
 	@PostMapping("save")
 	public ModelAndView save(@RequestParam("aadhar") int ad,UserDetails ud,ModelAndView mv) {
 		System.out.println(ad);
-	Session ss=sf.openSession();
-	Transaction tt=ss.beginTransaction();
-	ss.save(ud);
-	tt.commit();
-	mv.setViewName("save");
-	return mv;
-	}
-	
-	@RequestMapping("balance")
-	public ModelAndView checkBalance(ModelAndView mv) {
-		mv.setViewName("checkbalance");
-		double balance=0;
 		Session ss=sf.openSession();
-		Query q1 = ss.createQuery("select balance from UserDetails");
-		List<Double> l3 = q1.list();
-		for (Double obj1 : l3) {
-			balance=obj1;
-		}
-		mv.addObject("balance", balance);
+		Transaction tt=ss.beginTransaction();
+		ss.save(ud);
+		tt.commit();
+		mv.setViewName("save");
 		return mv;
 	}
-	
+
+	@RequestMapping("balance")
+	public ModelAndView checkBalance(ModelAndView mv,HttpSession hs) {
+		String uname=(String) hs.getAttribute("uname");
+
+		Session ss=sf.openSession();
+		UserDetails ud=ss.load(UserDetails.class, uname);
+		mv.setViewName("checkbalance");
+		mv.addObject("balance", ud.getBalance());
+		return mv;
+	}
+	@RequestMapping("next")
+	public ModelAndView withdrawal(@RequestParam("amount")Integer amount,ModelAndView mv,HttpSession hs) {
+
+		hs.setAttribute("amount", amount);
+		Session ss=sf.openSession();
+		UserDetails ud=ss.load(UserDetails.class,(String) hs.getAttribute("uname") );
+		if(amount>ud.getBalance()) {
+
+			System.out.println("insufficient balance");
+		}
+		else if(amount<=ud.getBalance()) {
+
+			mv.setViewName("pin");
+
+		}
+		return mv;
+	}
+	@RequestMapping("withdrawal")
+	public ModelAndView withdraw(ModelAndView mv,HttpSession hs) {
+
+		mv.setViewName("withdrawal");
+
+		return mv;
+
+	}
+	@PostMapping("withdraw")
+	public ModelAndView withdrawAmount(ModelAndView mv,HttpSession hs,@RequestParam("pin") int pin) {
+		Session ss=sf.openSession();
+		UserDetails ud=ss.load(UserDetails.class,(String) hs.getAttribute("uname") );
+
+		if(pin==ud.getPin()) {
+			double remain=ud.getBalance()-(int)hs.getAttribute("amount");
+			ud.setBalance(remain);
+			Transaction tt=ss.beginTransaction();
+			ss.saveOrUpdate(ud);
+			tt.commit();
+			mv.setViewName("success");
+		}
+		else {
+
+			System.out.println("Incorrect PIN");
+		}
+
+
+		return mv;
+
+	}
+
+
 }
 

@@ -16,12 +16,12 @@
   <body>
   <h2 align="center" style="margin-top: 80px">Welcome </h2><br>
   <h3>Please select any Service</h3>
+  <form action="withdrawal">
   <button style="margin-left: 550px" type="submit" class="btn btn-primary">Withdrawal</button>
+   </form>
   <button style="margin-left: 550px" type="submit" class="btn btn-primary">Deposit</button><br>
   <button style="margin-left: 550px" type="submit" class="btn btn-primary">Transfer</button><br>
-  
   <button style="margin-left: 550px" type="submit" class="btn btn-primary">ATM PIN Change</button><br>
-  
   <form action="balance">
   <button style="margin-left: 550px" type="submit" class="btn btn-primary">Check Balance</button><br>
   </form>

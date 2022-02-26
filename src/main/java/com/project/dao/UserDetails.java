@@ -19,8 +19,15 @@ int aadhar;
 String uname;
 String password;
 double balance;
+int pin;
 
 
+public int getPin() {
+	return pin;
+}
+public void setPin(int pin) {
+	this.pin = pin;
+}
 public double getBalance() {
 	return balance;
 }
@@ -102,7 +109,8 @@ public void setAadhar(int aadhar) {
 @Override
 public String toString() {
 	return "UserDetails [name=" + name + ", account=" + account + ", mob=" + mob + ", address=" + address + ", aadhar="
-			+ aadhar + ", uname=" + uname + ", password=" + password + ", balance=" + balance + "]";
+			+ aadhar + ", uname=" + uname + ", password=" + password + ", balance=" + balance + ", pin=" + pin + "]";
 }
+
 
 }
