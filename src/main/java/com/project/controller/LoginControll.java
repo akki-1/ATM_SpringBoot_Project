@@ -1,21 +1,19 @@
 package com.project.controller;
 
 import java.util.List;
-
 import javax.servlet.http.HttpSession;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.project.dao.LoginDetails;
+import com.project.dao.UserDetails;
 
 @Controller
 public class LoginControll {
@@ -37,7 +35,7 @@ public class LoginControll {
 
 		boolean b=false;
 		Session ss = sf.openSession();
-		Query q = ss.createQuery("select uname,pass from LoginDetails where uname='" + uname + "' and pass='" + pass + "'");
+		Query q = ss.createQuery("select uname,password from UserDetails where uname='" + uname + "' and password='" + pass + "'");
 		List<Object[]> l = q.list();
 		for (Object obj1[] : l) {
 			for (Object obj : obj1) {
@@ -45,13 +43,13 @@ public class LoginControll {
 			}
 		}
 		boolean c=false;
-		Query q1 = ss.createQuery("select uname from LoginDetails where uname='" + uname + "'");
+		Query q1 = ss.createQuery("select uname from UserDetails where uname='" + uname + "'");
 		List<String> l3 = q1.list();
 		for (String obj1 : l3) {
 			c=true;
 
 		}
-		Query q2 = ss.createQuery("select pass from LoginDetails where uname='" + uname + "'");
+		Query q2 = ss.createQuery("select password from UserDetails where uname='" + uname + "'");
 		List<String> l1 = q2.list();
 		String cpass=null;
 		for (String obj : l1) {
@@ -68,7 +66,7 @@ public class LoginControll {
 		}
 
 		else if(b) {
-			System.out.println("login success");
+			mv.setViewName("home");
 		}
 
 		else if(c&&pass!=cpass) {
@@ -93,5 +91,36 @@ public class LoginControll {
 		return mv;
 
 	}
+	@RequestMapping("signup")
+	public ModelAndView signup(ModelAndView mv) {
+		mv.setViewName("signup");
+		return mv;
+		
+	}
+	@PostMapping("save")
+	public ModelAndView save(@RequestParam("aadhar") int ad,UserDetails ud,ModelAndView mv) {
+		System.out.println(ad);
+	Session ss=sf.openSession();
+	Transaction tt=ss.beginTransaction();
+	ss.save(ud);
+	tt.commit();
+	mv.setViewName("save");
+	return mv;
+	}
+	
+	@RequestMapping("balance")
+	public ModelAndView checkBalance(ModelAndView mv) {
+		mv.setViewName("checkbalance");
+		double balance=0;
+		Session ss=sf.openSession();
+		Query q1 = ss.createQuery("select balance from UserDetails");
+		List<Double> l3 = q1.list();
+		for (Double obj1 : l3) {
+			balance=obj1;
+		}
+		mv.addObject("balance", balance);
+		return mv;
+	}
+	
 }
 
