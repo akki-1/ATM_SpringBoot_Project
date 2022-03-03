@@ -16,7 +16,7 @@
   <body>
   <h2>WELCOME TO LOGIN PAGE</h2>
 <h2>Account Login </h2>
-<form action ="login" method="post">
+<form action ="otp" method="post">
 <table>
 <tr>
 <td>Username:</td><td>

@@ -46,7 +46,7 @@
   <body>
   <!-- As a link -->
 <nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand" href="#">Logout</a>
+  <a class="navbar-brand" href="logout">Logout</a>
  <b> <span  style="margin-right: 650px;color: red" class="navbar-brand mb-0 h1">Wel-Come ${name }</span></b>
 </nav>
   <div style="background-color: aqua;" id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">

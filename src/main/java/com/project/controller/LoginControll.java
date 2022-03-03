@@ -1,6 +1,8 @@
 package com.project.controller;
 
 import java.util.List;
+import java.util.Random;
+
 import javax.servlet.http.HttpSession;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -25,9 +27,8 @@ public class LoginControll {
 		hs.setAttribute("attempt", 0);
 		return mv;
 	}
-	@PostMapping("login")
-	public ModelAndView login(@RequestParam("username") String uname, @RequestParam("password") String pass,
-			ModelAndView mv,HttpSession hs) {
+	@RequestMapping("otp")
+	public ModelAndView otp(@RequestParam("username") String uname, @RequestParam("password") String pass,ModelAndView mv,HttpSession hs) {
 		boolean b=false;
 		Session ss = sf.openSession();
 		Query q = ss.createQuery("select uname,password from UserDetails where uname='" + uname + "' and password='" + pass + "'");
@@ -55,11 +56,11 @@ public class LoginControll {
 			mv.setViewName("login");
 		}
 		else if(b) {
-			
-			Session s3=sf.openSession();
-			UserDetails ud=s3.load(UserDetails.class, (String) hs.getAttribute("uname"));
-			mv.addObject("name",ud.getName() );
-			mv.setViewName("home");
+			Random rr=new Random();
+			int r=rr.nextInt(9999);
+			System.out.println(r);
+			hs.setAttribute("otp", r);
+			mv.setViewName("otp");
 		}
 		else if(c&&pass!=cpass) {
 			Integer at=(Integer)hs.getAttribute("attempt")+1;
@@ -77,6 +78,23 @@ public class LoginControll {
 		else  {
 			System.out.println("Invalid UserName and Password");
 		}
+		return mv;
+	}
+	@PostMapping("login")
+	public ModelAndView login(ModelAndView mv,HttpSession hs,@RequestParam("otp") Integer otp) {
+		
+		if(otp.equals((int)(hs.getAttribute("otp")))) {
+			Session s3=sf.openSession();
+			UserDetails ud=s3.load(UserDetails.class, (String) hs.getAttribute("uname"));
+			mv.addObject("name",ud.getName() );
+			mv.setViewName("home");
+		}
+		else {
+			
+			mv.addObject("msg", "Invalid OTP");
+			mv.setViewName("otp");
+		}
+		
 		return mv;
 	}
 	@RequestMapping("signup")
@@ -187,7 +205,7 @@ public class LoginControll {
 		return mv;
 	}
 	@PostMapping("depositprocess")
-	public ModelAndView depoprocess(@RequestParam("account") String account,@RequestParam("caccount") String caccount,@RequestParam("amount") Integer amount,ModelAndView mv,HttpSession hs) {
+	public ModelAndView depositProcess(@RequestParam("account") String account,@RequestParam("caccount") String caccount,@RequestParam("amount") Integer amount,ModelAndView mv,HttpSession hs) {
 		String uname=(String) hs.getAttribute("uname");
 		Session ss=sf.openSession();
 		UserDetails ud=ss.load(UserDetails.class, uname);
@@ -208,6 +226,47 @@ public class LoginControll {
 		mv.setViewName("deposit");
 		return mv;
 	}
+	@RequestMapping("transfer")
+	public ModelAndView transfer(ModelAndView mv,HttpSession hs) {
+		mv.setViewName("transfer");
+		return mv;
+	}
+	
+	@PostMapping("transprocess")
+	public ModelAndView transProcess(@RequestParam("tamount") Integer amt,@RequestParam("pin") Integer pin,
+			@RequestParam("custaccount") Integer account,@RequestParam("caccount") 
+		Integer caccount,ModelAndView mv,HttpSession hs) {
+		String uname=(String) hs.getAttribute("uname");
+		Session ss=sf.openSession();
+		Transaction tt=ss.beginTransaction();
+		UserDetails ud=ss.load(UserDetails.class, uname);
+		if(amt<ud.getBalance()&&pin.equals(ud.getPin())&&account.equals(caccount)) {
+			double remainamt=ud.getBalance()-amt;
+			ud.setBalance(remainamt);
+			ss.update(ud);
+			tt.commit();
+			mv.addObject("msg", "Amount Transfer Succesfully");
+			System.out.println("Success");
+		}
+		else if(amt>ud.getBalance()&&pin.equals(ud.getPin())&&account.equals(caccount)) {
+			mv.addObject("msg", "Insufficient Balance");
+			System.out.println("Insufficient");
+		}
+		else {
+			mv.addObject("msg", "Something went wrong");
+			System.out.println("Something went wrong");
+		}
+		
+		mv.setViewName("transfer");
+		return mv;
+	}
+	@RequestMapping("logout")
+	public ModelAndView logout(ModelAndView mv,HttpSession hs) {
+		hs.invalidate();
+		mv.setViewName("login");
+		return mv;
+	}
+	
 	
 }
 
